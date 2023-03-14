@@ -7,7 +7,8 @@ import (
 
 type Service interface {
 	FindAll() ([]userModel.User, error)
-	Create(User userModel.User) (userModel.User, error)
+	FindproductByUserId(ID int) (userModel.User, error)
+	// Create(Join userModel.RequestJoin) (userModel.Orders, error)
 }
 
 type serviceUser struct {
@@ -21,4 +22,9 @@ func NewServiceUser(repositoryUser userRepository.UserRepository) *serviceUser {
 func (service *serviceUser) FindAll() ([]userModel.User, error) {
 	user, err := service.repositoryUser.FindAll()
 	return user, err
+}
+
+func (service *serviceUser) FindproductByUserId(ID int) (userModel.User, error) {
+	users, err := service.repositoryUser.FindProductByUserId(ID)
+	return users, err
 }

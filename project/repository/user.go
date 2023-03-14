@@ -6,9 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository interface{
+type UserRepository interface {
 	FindAll() ([]userModel.User, error)
-	Create(User userModel.User)(userModel.User, error)
+	FindProductByUserId(ID int) (userModel.User, error)
+	Create(Join userModel.RequestJoin) (userModel.RequestJoin, error)
 }
 
 type repositoryUser struct {
@@ -21,7 +22,12 @@ func NewUserRepository(db *gorm.DB) *repositoryUser {
 
 func (repositoryUser *repositoryUser) FindAll() ([]userModel.User, error) {
 	var user []userModel.User
-	err := repositoryUser.db.Joins("UserAdress").Select("*").Find(&user).Error
+	err := repositoryUser.db.Joins("Order").Select("*").Find(&user).Error
 	return user, err
 }
 
+func (repositoryUser *repositoryUser) FindProductByUserId(ID int) (userModel.User, error) {
+	var join userModel.User
+	err := repositoryUser.db.Preload("Order").Where("id=?", ID).Find(&join).Error
+	return join, err
+}
