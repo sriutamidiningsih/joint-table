@@ -7,27 +7,39 @@ import (
 )
 
 type UserRepository interface {
-	FindAll() ([]userModel.User, error)
-	FindProductByUserId(ID int) (userModel.User, error)
-	Create(Join userModel.RequestJoin) (userModel.RequestJoin, error)
+	FindUserAll() ([]userModel.User, error)
+	FindOrders() ([]userModel.Orders, error)
+	FindByUserId(ID int) (userModel.User, error)
+	Create(user userModel.User) (userModel.User, error)
 }
 
-type repositoryUser struct {
+type repositoryuser struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) *repositoryUser {
-	return &repositoryUser{db}
+func NewRepositoryUser(db *gorm.DB) *repositoryuser {
+	return &repositoryuser{db}
 }
 
-func (repositoryUser *repositoryUser) FindAll() ([]userModel.User, error) {
+func (repositoryuser *repositoryuser) FindUserAll() ([]userModel.User, error) {
 	var user []userModel.User
-	err := repositoryUser.db.Joins("Order").Select("*").Find(&user).Error
+	err := repositoryuser.db.Joins("Order").Select("*").Find(&user).Error
 	return user, err
 }
 
-func (repositoryUser *repositoryUser) FindProductByUserId(ID int) (userModel.User, error) {
+func (repositoryuser *repositoryuser) FindOrders() ([]userModel.Orders, error) {
+	var order []userModel.Orders
+	err := repositoryuser.db.Find(&order).Error
+	return order, err
+}
+
+func (repositoryuser *repositoryuser) FindByUserId(ID int) (userModel.User, error) {
 	var join userModel.User
-	err := repositoryUser.db.Preload("Order").Where("id=?", ID).Find(&join).Error
+	err := repositoryuser.db.Preload("Order").Where("id=?", ID).Find(&join).Error
 	return join, err
+}
+
+func (repositoryuser *repositoryuser) Create(user userModel.User) (userModel.User, error) {
+	err := repositoryuser.db.Create(&user).Error
+	return user, err
 }

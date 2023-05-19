@@ -6,25 +6,41 @@ import (
 )
 
 type Service interface {
-	FindAll() ([]userModel.User, error)
-	FindproductByUserId(ID int) (userModel.User, error)
-	// Create(Join userModel.RequestJoin) (userModel.Orders, error)
+	FindUserAll() ([]userModel.User, error)
+	FindOrders() ([]userModel.Orders, error)
+	FindByUserId(ID int) (userModel.User, error)
+	Create(join userModel.RequestOrders) (userModel.User, error)
 }
 
-type serviceUser struct {
+type serviceuser struct {
 	repositoryUser userRepository.UserRepository
 }
 
-func NewServiceUser(repositoryUser userRepository.UserRepository) *serviceUser {
-	return &serviceUser{repositoryUser}
+func NewServiceUser(repositoryUser userRepository.UserRepository) *serviceuser {
+	return &serviceuser{repositoryUser}
 }
 
-func (service *serviceUser) FindAll() ([]userModel.User, error) {
-	user, err := service.repositoryUser.FindAll()
+func (service *serviceuser) FindUserAll() ([]userModel.User, error) {
+	user, err := service.repositoryUser.FindUserAll()
 	return user, err
 }
 
-func (service *serviceUser) FindproductByUserId(ID int) (userModel.User, error) {
-	users, err := service.repositoryUser.FindProductByUserId(ID)
+func (service *serviceuser) FindOrders() ([]userModel.Orders, error) {
+	order, err := service.repositoryUser.FindOrders()
+	return order, err
+}
+
+func (service *serviceuser) FindByUserId(ID int) (userModel.User, error) {
+	users, err := service.repositoryUser.FindByUserId(ID)
 	return users, err
+}
+
+func (service *serviceuser) Create(join userModel.RequestOrders) (userModel.User, error) {
+	users := userModel.User{
+		Name:      join.Name,
+		Email:     join.Email,
+		OrderList: []userModel.Orders{},
+	}
+	newJoins, err := service.repositoryUser.Create(users)
+	return newJoins, err
 }

@@ -2,12 +2,15 @@ package handler
 
 import (
 	response "dummy/pkg/api-response"
-	userRepository "dummy/project/model"
+	Models "dummy/project/model"
 	userService "dummy/project/services"
+	helper "dummy/utility"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +23,7 @@ func NewUserHandler(userService userService.Service) *userHandler {
 }
 
 func (handler *userHandler) GetAll(ctx *gin.Context) {
-	user, err := handler.userService.FindAll()
+	user, err := handler.userService.FindUserAll()
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, response.DataNotFound())
@@ -29,13 +32,50 @@ func (handler *userHandler) GetAll(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, response.ServerError(err.Error()))
 		return
 	}
-	var usersResponse []userRepository.ResponseUser
+	var usersResponse []Models.ResponseUser
 	for _, b := range user {
 		userResponse := ResponseUser(b)
 		usersResponse = append(usersResponse, userResponse)
 	}
 	ctx.JSON(http.StatusOK, response.Success(usersResponse))
 }
+
+func (handler *userHandler) GetOrders(ctx *gin.Context) {
+	orders, err := handler.userService.FindOrders()
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			ctx.JSON(http.StatusNotFound, response.DataNotFound())
+			return
+		}
+	}
+
+	var ordersResponses []Models.ResponseJoin
+	for _, order := range orders {
+		var user Models.User
+		ordersResponses = append(ordersResponses, Models.ResponseJoin{
+			ID:          order.ID,
+			NameProduct: order.NameProduct,
+			TotalOrder:  order.TotalOrder,
+			Name:        user.Name,
+			Email:       user.Email,
+		})
+	}
+	ctx.JSON(http.StatusOK, response.Success(ordersResponses))
+
+}
+
+// func (handler *userHandler)GetOrders(ctx *gin.Context)  {
+// 	orders, err := handler.userService.FindOrders()
+// 	if err != nil {
+// 		if err == gorm.ErrRecordNotFound {
+// 			ctx.JSON(http.StatusNotFound, response.DataNotFound())
+// 			return
+// 		}
+// 		ctx.JSON(http.StatusInternalServerError, response.ServerError(err.Error()))
+// 		return
+// 	}
+
+// }
 
 func (handler *userHandler) GetByUserId(ctx *gin.Context) {
 	idString := ctx.Param("id_user")
@@ -46,7 +86,7 @@ func (handler *userHandler) GetByUserId(ctx *gin.Context) {
 		return
 	}
 
-	users, err := handler.userService.FindproductByUserId(id)
+	users, err := handler.userService.FindByUserId(id)
 
 	if users.ID == 0 {
 		ctx.JSON(http.StatusNotFound, response.NotFound("ID User"))
@@ -61,9 +101,32 @@ func (handler *userHandler) GetByUserId(ctx *gin.Context) {
 
 }
 
-func ResponseUser(b userRepository.User) userRepository.ResponseUser {
+func (handler *userHandler) Create(ctx *gin.Context) {
+	var joinRequest Models.RequestOrders
 
-	return userRepository.ResponseUser{
+	err := ctx.ShouldBindJSON(&joinRequest)
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errorMessages := helper.ErrorMessages(err)
+			ctx.JSON(http.StatusBadRequest, response.BadRequest(errorMessages))
+			return
+		}
+		ctx.JSON(http.StatusBadRequest, response.BadRequest(err.Error()))
+		return
+	}
+
+	joins, err := handler.userService.Create(joinRequest)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ServerError(err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(joins))
+}
+
+func ResponseUser(b Models.User) Models.ResponseUser {
+
+	return Models.ResponseUser{
 		ID:    b.ID,
 		Name:  b.Name,
 		Email: b.Email,
