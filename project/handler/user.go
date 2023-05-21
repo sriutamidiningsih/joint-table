@@ -51,7 +51,7 @@ func (handler *userHandler) GetOrders(ctx *gin.Context) {
 
 	var ordersResponses []Models.ResponseJoin
 	for _, order := range orders {
-		var user Models.User
+		var user Models.Users
 		ordersResponses = append(ordersResponses, Models.ResponseJoin{
 			ID:          order.ID,
 			NameProduct: order.NameProduct,
@@ -124,7 +124,7 @@ func (handler *userHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.Success(joins))
 }
 
-func ResponseUser(b Models.User) Models.ResponseUser {
+func ResponseUser(b Models.Users) Models.ResponseUser {
 
 	return Models.ResponseUser{
 		ID:    b.ID,
