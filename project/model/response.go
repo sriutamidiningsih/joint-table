@@ -7,7 +7,6 @@ type ResponseUser struct {
 }
 
 type ResponseJoin struct {
-	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Email       string `json:"email"`
 	NameProduct string `json:"name_product"`

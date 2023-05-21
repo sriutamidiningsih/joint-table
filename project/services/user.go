@@ -7,7 +7,7 @@ import (
 
 type Service interface {
 	FindUserAll() ([]userModel.Users, error)
-	FindOrders() ([]userModel.Orders, error)
+	FindJoins() ([]userModel.Users, error)
 	FindByUserId(ID int) (userModel.Users, error)
 	Create(join userModel.RequestOrders) (userModel.Users, error)
 }
@@ -25,8 +25,8 @@ func (service *serviceuser) FindUserAll() ([]userModel.Users, error) {
 	return user, err
 }
 
-func (service *serviceuser) FindOrders() ([]userModel.Orders, error) {
-	order, err := service.repositoryUser.FindOrders()
+func (service *serviceuser) FindJoins() ([]userModel.Users, error) {
+	order, err := service.repositoryUser.FindJoin()
 	return order, err
 }
 

@@ -41,26 +41,34 @@ func (handler *userHandler) GetAll(ctx *gin.Context) {
 }
 
 func (handler *userHandler) GetOrders(ctx *gin.Context) {
-	orders, err := handler.userService.FindOrders()
+	users, err := handler.userService.FindJoins()
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, response.DataNotFound())
 			return
 		}
 	}
-
-	var ordersResponses []Models.ResponseJoin
-	for _, order := range orders {
-		var user Models.Users
-		ordersResponses = append(ordersResponses, Models.ResponseJoin{
-			ID:          order.ID,
-			NameProduct: order.NameProduct,
-			TotalOrder:  order.TotalOrder,
-			Name:        user.Name,
-			Email:       user.Email,
+	var responseData []gin.H
+	for _, user := range users {
+		responseData = append(responseData, gin.H{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+			"orderlist": func() []gin.H {
+				var orderlist []gin.H
+				for _, orderlists := range user.OrderList {
+					orderlist = append(orderlist, gin.H{
+						"id":           orderlists.ID,
+						"name_product": orderlists.NameProduct,
+						"total_order":  orderlists.TotalOrder,
+					})
+				}
+				return orderlist
+			}(),
 		})
 	}
-	ctx.JSON(http.StatusOK, response.Success(ordersResponses))
+
+	ctx.JSON(http.StatusOK, response.Success(responseData))
 
 }
 

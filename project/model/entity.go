@@ -8,9 +8,8 @@ type Users struct {
 }
 
 type Orders struct {
-	ID          int    `gorm:"PrimaryKey"`
-	IdUser      int8   `json:"id_user"`
-	NameProduct string `json:"name_product"`
-	TotalOrder  int8   `json:"total_order"`
-	
+	ID          int     `gorm:"PrimaryKey"`
+	IdUser      int8    `json:"id_user"`
+	NameProduct string  `json:"name_product"`
+	TotalOrder  int8    `json:"total_order"`
 }

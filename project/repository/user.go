@@ -8,7 +8,7 @@ import (
 
 type UserRepository interface {
 	FindUserAll() ([]userModel.Users, error)
-	FindOrders() ([]userModel.Orders, error)
+	FindJoin() ([]userModel.Users, error)
 	FindByUserId(ID int) (userModel.Users, error)
 	Create(user userModel.Users) (userModel.Users, error)
 }
@@ -27,11 +27,11 @@ func (repositoryuser *repositoryuser) FindUserAll() ([]userModel.Users, error) {
 	return user, err
 }
 
-func (repositoryuser *repositoryuser) FindOrders() ([]userModel.Orders, error) {
-	var order []userModel.Orders
-	err := repositoryuser.db.Table("order").Joins("JOIN users ON order.id_user = users.id").
-		Select("order.total_order, order.name_product, users.name, users.email").Find(&order).Error
-	return order, err
+func (repositoryuser *repositoryuser) FindJoin() ([]userModel.Users, error) {
+	var joins []userModel.Users
+	err := repositoryuser.db.Preload("OrderList").Find(&joins).Error
+	//err := repositoryuser.db.Table("order").Joins("JOIN users ON order.id_user = users.id").Find(&order).Error
+	return joins, err
 }
 
 func (repositoryuser *repositoryuser) FindByUserId(ID int) (userModel.Users, error) {
