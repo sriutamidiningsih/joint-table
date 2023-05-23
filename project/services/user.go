@@ -10,6 +10,7 @@ type Service interface {
 	FindJoins() ([]userModel.Users, error)
 	FindByUserId(ID int) (userModel.Users, error)
 	Create(join userModel.RequestOrders) (userModel.Users, error)
+	CreateOrders(orders userModel.RequestOrder) (userModel.Orders, error)
 }
 
 type serviceuser struct {
@@ -39,13 +40,22 @@ func (service *serviceuser) Create(join userModel.RequestOrders) (userModel.User
 	users := userModel.Users{
 		Name:  join.Name,
 		Email: join.Email,
-		OrderList: []userModel.Orders{
-			{
-				NameProduct: join.NameProduct,
-				TotalOrder:  join.TotalOrder,
-			},
-		},
+		OrderList: []userModel.Orders{{
+			IdUser:      join.IdUser,
+			NameProduct: join.NameProduct,
+			TotalOrder:  join.TotalOrder,
+		}},
 	}
 	newJoins, err := service.repositoryUser.Create(users)
 	return newJoins, err
+}
+
+func (service *serviceuser) CreateOrders(orders userModel.RequestOrder) (userModel.Orders, error) {
+	order := userModel.Orders{
+		IdUser:      orders.IdUser,
+		NameProduct: orders.NameProduct,
+		TotalOrder:  orders.TotalOrder,
+	}
+	newOrders, err := service.repositoryUser.CreateOrders(order)
+	return newOrders, err
 }

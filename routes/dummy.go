@@ -20,5 +20,6 @@ func User(db *gorm.DB, router *gin.Engine) {
 	v1.GET("/joins", userHandler.GetOrders)
 	v1.GET("/:id_user", userHandler.GetByUserId)
 	v1.POST("/", userHandler.Create)
+	v1.POST("/order", userHandler.CreateOrders)
 
 }

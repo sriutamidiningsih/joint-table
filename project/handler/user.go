@@ -58,7 +58,7 @@ func (handler *userHandler) GetOrders(ctx *gin.Context) {
 				var orderlist []gin.H
 				for _, orderlists := range user.OrderList {
 					orderlist = append(orderlist, gin.H{
-						"id":           orderlists.ID,
+						"id_user":      orderlists.IdUser,
 						"name_product": orderlists.NameProduct,
 						"total_order":  orderlists.TotalOrder,
 					})
@@ -130,6 +130,29 @@ func (handler *userHandler) Create(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, response.Success(joins))
+}
+
+func (handler *userHandler) CreateOrders(ctx *gin.Context) {
+	var orders Models.RequestOrder
+
+	err := ctx.ShouldBindJSON(&orders)
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errorMessages := helper.ErrorMessages(err)
+			ctx.JSON(http.StatusBadRequest, response.BadRequest(errorMessages))
+			return
+		}
+		ctx.JSON(http.StatusBadRequest, response.BadRequest(err.Error()))
+		return
+	}
+
+	order, err := handler.userService.CreateOrders(orders)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ServerError(err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(order))
 }
 
 func ResponseUser(b Models.Users) Models.ResponseUser {

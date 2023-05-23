@@ -11,6 +11,7 @@ type UserRepository interface {
 	FindJoin() ([]userModel.Users, error)
 	FindByUserId(ID int) (userModel.Users, error)
 	Create(user userModel.Users) (userModel.Users, error)
+	CreateOrders(orders userModel.Orders) (userModel.Orders, error)
 }
 
 type repositoryuser struct {
@@ -43,4 +44,9 @@ func (repositoryuser *repositoryuser) FindByUserId(ID int) (userModel.Users, err
 func (repositoryuser *repositoryuser) Create(user userModel.Users) (userModel.Users, error) {
 	err := repositoryuser.db.Create(&user).Error
 	return user, err
+}
+
+func (repositoryuser *repositoryuser) CreateOrders(orders userModel.Orders) (userModel.Orders, error) {
+	err := repositoryuser.db.Create(&orders).Error
+	return orders, err
 }
